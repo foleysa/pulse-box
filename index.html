@@ -112,6 +112,25 @@
     color: #1a1a1a;
     margin: 0;
   }
+  .reasons {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .reasons li {
+    margin: 0 0 12px;
+  }
+  .reasons .tag {
+    font-weight: 600;
+  }
+  .series-note {
+    margin: 20px 0 0;
+    font-size: 12px;
+    color: #1a1a1a;
+    line-height: 1.45;
+  }
 </style>
 </head>
 <body>
@@ -121,20 +140,28 @@
     <div class="row">
       <label for="last-price">Last price</label>
       <span class="prefix">$</span>
-      <input id="last-price" type="number" value="90" step="any">
+      <input id="last-price" type="number" step="any" inputmode="decimal">
       <span class="suffix">per thousand square feet</span>
     </div>
-    <p>$90 per thousand square feet</p>
-    <div id="fair" class="fair">about $101 per thousand square feet</div>
+    <p id="typed-unit"></p>
+    <div id="fair" class="fair"></div>
     <div class="track"><div class="mark"></div></div>
     <div class="ends">
-      <div>Low <span id="low">$93</span></div>
+      <div>Low <span id="low"></span></div>
       <div class="mid">fair</div>
-      <div>High <span id="high">$109</span></div>
+      <div>High <span id="high"></span></div>
     </div>
-    <p>$93–$109 per thousand square feet</p>
+    <p id="band-unit"></p>
     <p class="formula">last × (1 + (2/3) × ~7.7% + ~7.1% ASSUMPTION residual)</p>
+    <ul class="reasons">
+      <li><span class="tag">Locked.</span> The box price index rose about 7.7% from August 2025 to August 2026. Rounded. August 2026 is preliminary.</li>
+      <li><span class="tag">Assumption.</span> About two thirds of the box is the paper.</li>
+      <li><span class="tag">Assumption.</span> The rest of the lift is about 7.1%. It is not from the index alone.</li>
+      <li><span class="tag">Assumption.</span> The band is 8% either side of fair.</li>
+      <li><span class="tag">Not in this price.</span> Diesel is about $6.38 a gallon for the week ending September 28, 2026.</li>
+    </ul>
     <p class="disclaimer">Illustrative, not a quote. Prefer the band.</p>
+    <p class="series-note">Index: BLS PPI series PCU322211322211.</p>
   </div>
 <script>
 function pulseFair(lastPrice) {
@@ -157,20 +184,28 @@ function render() {
   const fairEl = document.getElementById("fair");
   const lowEl = document.getElementById("low");
   const highEl = document.getElementById("high");
+  const typedEl = document.getElementById("typed-unit");
+  const bandEl = document.getElementById("band-unit");
   const band = pulseFair(input.value);
   if (band.fair === null) {
     fairEl.textContent = "";
     lowEl.textContent = "";
     highEl.textContent = "";
+    typedEl.textContent = "";
+    bandEl.textContent = "";
     return;
   }
+  const low = Math.round(band.low);
+  const high = Math.round(band.high);
   fairEl.textContent = "about $" + Math.round(band.fair) + " per thousand square feet";
-  lowEl.textContent = "$" + Math.round(band.low);
-  highEl.textContent = "$" + Math.round(band.high);
+  lowEl.textContent = "$" + low;
+  highEl.textContent = "$" + high;
+  typedEl.textContent = "$" + String(input.value).trim() + " per thousand square feet";
+  bandEl.textContent = "$" + low + "–$" + high + " per thousand square feet";
 }
 
 document.getElementById("last-price").addEventListener("input", render);
-document.addEventListener("DOMContentLoaded", render);
+render();
 </script>
 </body>
 </html>
