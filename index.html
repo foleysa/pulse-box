@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A plain brown shipping box</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e7e2d8;
+    color: #1a1a1a;
+    font-family: "Public Sans", system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  .panel {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 40px;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 56px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    white-space: normal;
+  }
+  .sub {
+    margin: 0 0 36px;
+    font-size: 18px;
+    color: #1a1a1a;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    margin-bottom: 28px;
+  }
+  .row label {
+    font-weight: 500;
+  }
+  .prefix, .suffix {
+    font-size: 18px;
+  }
+  #last-price {
+    font-family: "Public Sans", system-ui, sans-serif;
+    font-size: 22px;
+    color: #1a1a1a;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid #1a1a1a;
+    width: 120px;
+    height: 44px;
+    padding: 4px 6px;
+    box-sizing: border-box;
+  }
+  #last-price::-webkit-outer-spin-button,
+  #last-price::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  #last-price {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .fair {
+    font-size: 80px;
+    color: #c4551a;
+    font-family: Fraunces, Georgia, serif;
+    line-height: 1;
+    margin: 8px 0 28px;
+  }
+  .track {
+    height: 8px;
+    background: #1a1a1a;
+    position: relative;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .mark {
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    width: 2px;
+    height: 20px;
+    background: #1a1a1a;
+    transform: translateX(-50%);
+  }
+  .ends {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 14px;
+    font-size: 15px;
+  }
+  .ends .mid {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .formula {
+    font-size: 16px;
+    color: #1a1a1a;
+    margin: 28px 0 8px;
+  }
+  .disclaimer {
+    font-size: 15px;
+    color: #1a1a1a;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <h1>A plain brown shipping box</h1>
+    <p class="sub">One layer of cardboard, no printing.</p>
+    <div class="row">
+      <label for="last-price">Last price</label>
+      <span class="prefix">$</span>
+      <input id="last-price" type="number" value="90" step="any">
+      <span class="suffix">per thousand square feet</span>
+    </div>
+    <p>$90 per thousand square feet</p>
+    <div id="fair" class="fair">about $101 per thousand square feet</div>
+    <div class="track"><div class="mark"></div></div>
+    <div class="ends">
+      <div>Low <span id="low">$93</span></div>
+      <div class="mid">fair</div>
+      <div>High <span id="high">$109</span></div>
+    </div>
+    <p>$93–$109 per thousand square feet</p>
+    <p class="formula">last × (1 + (2/3) × ~7.7% + ~7.1% ASSUMPTION residual)</p>
+    <p class="disclaimer">Illustrative, not a quote. Prefer the band.</p>
+  </div>
+<script>
+function pulseFair(lastPrice) {
+  if (lastPrice === null || lastPrice === undefined) return {fair: null, low: null, high: null};
+  const raw = String(lastPrice).trim();
+  if (raw === "") return {fair: null, low: null, high: null};
+  const last = Number(raw);
+  if (!Number.isFinite(last)) return {fair: null, low: null, high: null};
+  const yoy = 0.077;
+  const paper = 2/3;
+  const residual = 0.071;
+  const fair = last * (1 + paper * yoy + residual);
+  const low = fair * 0.92;
+  const high = fair * 1.08;
+  return {fair: fair, low: low, high: high};
+}
+
+function render() {
+  const input = document.getElementById("last-price");
+  const fairEl = document.getElementById("fair");
+  const lowEl = document.getElementById("low");
+  const highEl = document.getElementById("high");
+  const band = pulseFair(input.value);
+  if (band.fair === null) {
+    fairEl.textContent = "";
+    lowEl.textContent = "";
+    highEl.textContent = "";
+    return;
+  }
+  fairEl.textContent = "about $" + Math.round(band.fair) + " per thousand square feet";
+  lowEl.textContent = "$" + Math.round(band.low);
+  highEl.textContent = "$" + Math.round(band.high);
+}
+
+document.getElementById("last-price").addEventListener("input", render);
+document.addEventListener("DOMContentLoaded", render);
+</script>
+</body>
+</html>
